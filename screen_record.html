@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Screen Recording</title>
+</head>
+<body>
+  <h1>Screen Recording</h1>
+  <button id="start">Start Recording</button>
+  <button id="stop">Stop Recording</button>
+  <script>
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    function startRecording() {
+      navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
+        .then(function(stream) {
+          mediaRecorder = new MediaRecorder(stream);
+
+          mediaRecorder.ondataavailable = function(event) {
+            recordedChunks.push(event.data);
+          };
+
+          mediaRecorder.onstop = function() {
+            const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
+            const videoUrl = URL.createObjectURL(recordedBlob);
+
+            const videoElement = document.createElement('video');
+            videoElement.src = videoUrl;
+            videoElement.controls = true;
+            document.body.appendChild(videoElement);
+          };
+
+          mediaRecorder.start();
+        })
+        .catch(function(error) {
+          console.error('Error accessing screen media:', error);
+        });
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+    }
+
+    var startButton = document.getElementById('start');
+    var stopButton = document.getElementById('stop');
+    startButton.addEventListener('click', startRecording);
+    stopButton.addEventListener('click', stopRecording);
+  </script>
+</body>
+</html>
