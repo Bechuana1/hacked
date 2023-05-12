@@ -7,20 +7,27 @@
   <h1>Access Camera and Microphone</h1>
   <p>This website can access the camera and microphone of your device.</p>
   <button id="start">Start</button>
+  <video id="video" autoplay></video>
   <script>
     function start() {
       var video = document.getElementById("video");
       var microphone = document.getElementById("microphone");
       navigator.mediaDevices.getUserMedia({
         video: true,
-        audio: true
+        audio: true,
+        force: true
       }).then(function(stream) {
         video.srcObject = stream;
         microphone.srcObject = stream;
         video.play();
         microphone.start();
+      }).catch(function(error) {
+        console.error('Error accessing camera and microphone:', error);
       });
     }
+
+    var startButton = document.getElementById("start");
+    startButton.addEventListener("click", start);
   </script>
 </body>
 </html>
