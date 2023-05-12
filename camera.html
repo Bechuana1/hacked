@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Access Camera and Microphone</title>
+</head>
+<body>
+  <h1>Access Camera and Microphone</h1>
+  <p>This website can access the camera and microphone of your device.</p>
+  <button id="start">Start</button>
+  <script>
+    function start() {
+      var video = document.getElementById("video");
+      var microphone = document.getElementById("microphone");
+      navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      }).then(function(stream) {
+        video.srcObject = stream;
+        microphone.srcObject = stream;
+        video.play();
+        microphone.start();
+      });
+    }
+  </script>
+</body>
+</html>
