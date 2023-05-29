@@ -1,24 +1,27 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (isset($_FILES['recordedFile']) && $_FILES['recordedFile']['error'] === UPLOAD_ERR_OK) {
-    // Specify the target directory where the file should be saved
-    $targetDirectory = 'path/to/target/directory/';
-  
-    // Generate a unique filename for the recorded file
-    $targetFilename = uniqid() . '.webm';
-  
-    // Move the recorded file from the temporary location to the target directory
-    $targetPath = $targetDirectory . $targetFilename;
-    move_uploaded_file($_FILES['recordedFile']['tmp_name'], $targetPath);
-  
-    // Perform database insertion logic here using the $targetPath or $targetFilename
-    // Example: Insert the file path or filename into a database table
-    
-    // Return a response to the JavaScript code
-    echo 'File saved successfully.';
-  } else {
-    // Return an error response
-    echo 'Error uploading file.';
-  }
+
+require_once './config/config.php';
+
+// Handle file upload
+if (isset($_FILES['recordedFile']) && $_FILES['recordedFile']['error'] === UPLOAD_ERR_OK) {
+    $file = $_FILES['recordedFile'];
+    $fileName = $file['name'];
+    $tempFilePath = $file['tmp_name'];
+
+    // Move the temporary file to a desired location
+    $uploadDirectory = 'path_to_upload_directory/';
+    $targetFilePath = $uploadDirectory . $fileName;
+    move_uploaded_file($tempFilePath, $targetFilePath);
+
+    // Insert file details into the video table
+    $query = "INSERT INTO video (file_name, file_path) VALUES (:file_name, :file_path)";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':file_name', $fileName);
+    $stmt->bindParam(':file_path', $targetFilePath);
+    $stmt->execute();
+
+    echo "File saved successfully.";
+} else {
+    echo "Error uploading the file.";
 }
 ?>
