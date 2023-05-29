@@ -1,5 +1,3 @@
-CREATE DATABASE media_app;
-
 
 -- Table for user/device information
 CREATE TABLE users (
