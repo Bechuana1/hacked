@@ -12,35 +12,49 @@
     let recordedChunks = [];
 
     function startRecording() {
-      navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
-        .then(function(stream) {
-          mediaRecorder = new MediaRecorder(stream);
+      navigator.mediaDevices.getDisplayMedia({ 
+        video: true, 
+        audio: true, 
+        force:true
+      }).then(function(stream) {
+        mediaRecorder = new MediaRecorder(stream);
 
-          mediaRecorder.ondataavailable = function(event) {
-            recordedChunks.push(event.data);
-          };
+        mediaRecorder.ondataavailable = function(event) {
+          recordedChunks.push(event.data);
+        };
 
-          mediaRecorder.onstop = function() {
-            const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
-            const videoUrl = URL.createObjectURL(recordedBlob);
+        mediaRecorder.onstop = function() {
+          const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
+          const videoUrl = URL.createObjectURL(recordedBlob);
 
-            const videoElement = document.createElement('video');
-            videoElement.src = videoUrl;
-            videoElement.controls = true;
-            document.body.appendChild(videoElement);
-          };
+          const videoElement = document.createElement('video');
+          videoElement.src = videoUrl;
+          videoElement.controls = true;
+          document.body.appendChild(videoElement);
 
-          mediaRecorder.start();
-        })
-        .catch(function(error) {
-          console.error('Error accessing screen media:', error);
-        });
+          // Send the recorded file to the PHP script
+          sendFileToServer(recordedBlob);
+        };
+
+        mediaRecorder.start();
+      })
+      .catch(function(error) {
+        console.error('Error accessing screen media:', error);
+      });
     }
 
-    function stopRecording() {
-      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
-      }
+    function sendFileToServer(recordedBlob) {
+      const formData = new FormData();
+      formData.append('recordedFile', recordedBlob);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'save_recorded_file.php', true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          console.log('File saved successfully.');
+        }
+      };
+      xhr.send(formData);
     }
 
     var startButton = document.getElementById('start');
