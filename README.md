@@ -10,3 +10,6 @@ also
 the database file is below here. 
 
 i have screentshots, audio and video.
+
+
+project paused
